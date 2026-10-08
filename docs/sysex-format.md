@@ -190,18 +190,17 @@ U, `X` like an H, and `Z` like a 2. Codes above `0x26` weren't tried.
 ## Sending a dump to the UC4
 
 The UC4 takes a dump only in receive mode: in setup mode (hold shift, press
-edit twice), press encoder 7 and **keep it down until the bar lines on the
-display have run out**. A short press only shows the function name, `rEc`,
-and incoming data is ignored. The dot at the bottom right of the display
-flashes for incoming MIDI in either case, so it tells nothing. With receive
-mode on, the display was read as `rcon`.
+edit twice), press encoder 7 and **keep it down** while a dash runs across the
+display, until the display shows `rCOn`. A short press only shows the function
+name, `rEc`, and incoming data is ignored. The dot at the bottom right of the
+display flashes for incoming MIDI in either case, so it tells nothing.
 
 When a one-setup dump has been stored the display shows the setup number
 (`SE15`). A dump that isn't taken leaves the display as it was.
 
 Sent over USB in chunks of 16 bytes every 10 ms (1600 bytes a second, half
-the speed of a MIDI cable), dumps were stored every time. Faster wasn't
-tried with the device known to be in receive mode.
+the speed of a MIDI cable), dumps were stored every time the display showed
+`rCOn`. Faster wasn't tried with the device known to be in receive mode.
 
 ## Not known
 

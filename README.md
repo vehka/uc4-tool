@@ -59,7 +59,7 @@ The UC4 only takes a dump in receive mode:
 
 1. hold shift and press edit twice (setup mode)
 2. select the setup with encoder 1
-3. press encoder 7 and **keep it down until the bar lines have run out**. A
+3. press encoder 7 and **keep it down until the display shows `rCOn`**. A
    short press only shows the function name, `rEc`, and the data is ignored.
 
 `uc4 send` prints these steps and waits for enter. `--yes` skips the

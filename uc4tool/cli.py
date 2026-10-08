@@ -9,8 +9,9 @@ RECEIVE_HELP = """\
 Put the UC4 in receive mode:
   1. hold shift and press edit twice (setup mode)
   2. select setup %d with encoder 1 (SE%02d)
-  3. press encoder 7 and keep it down until the bar lines have run out
-     (a short press only shows the function name, and the data is ignored)
+  3. press encoder 7 and keep it down until the display shows rCOn
+     (a short press only shows the function name, rEc, and the data is
+     ignored)
 The UC4 shows SE%02d when the setup is stored."""
 
 SEND_HELP = """\
@@ -87,8 +88,8 @@ def cmd_send(args):
         print("This overwrites setup %d." % slots[0], file=sys.stderr)
     else:
         print("This overwrites ALL %d setups of the UC4." % len(slots), file=sys.stderr)
-        print("Put the UC4 in receive mode (setup mode, hold encoder 7).",
-              file=sys.stderr)
+        print("Put the UC4 in receive mode (setup mode, hold encoder 7 "
+              "until the display shows rCOn).", file=sys.stderr)
     if not args.yes:
         if not sys.stdin.isatty():
             raise ValueError("not sent: confirm with --yes when the UC4 is "
