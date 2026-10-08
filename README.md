@@ -32,14 +32,16 @@ anywhere.
 uc4 info dump.syx                          what a dump holds
 uc4 decode dump.syx -o setup.yaml          a dump as a setup file
 uc4 decode all.syx --slot 3                one setup of a dump of all setups
-uc4 encode setup.yaml --slot 5 -o s5.syx   a setup file as a dump for setup 5
-uc4 send setup.yaml --slot 5               ...and straight to the UC4
-uc4 send backup.syx                        a dump, to the setup it came from
+uc4 encode setup.yaml -o setup.syx         a setup file as a dump
+uc4 send setup.yaml                        ...and straight to the UC4
+uc4 send backup.syx                        a dump
+uc4 send all.syx --slot 3                  one setup of a dump of all setups
 uc4 receive -o backup.syx                  save what the UC4 sends
 ```
 
-A dump of one setup belongs to a setup slot: it overwrites the setup it was
-made for. `--slot` chooses the slot.
+The UC4 stores a dump of one setup in **the setup that is selected on it**
+(encoder 1 in setup mode), also when the dump was made from another setup.
+So any backup of one setup can be put in any of the 18 setups.
 
 ### Back up first
 
@@ -58,8 +60,8 @@ encoder 8 (`SndA`). It takes about half a minute.
 The UC4 only takes a dump in receive mode:
 
 1. hold shift and press edit twice (setup mode)
-2. select the setup with encoder 1
-3. press encoder 7 and **keep it down until the display shows `rCOn`**. A
+2. select the setup to overwrite with encoder 1
+3. press encoder 7 and **keep it down until the display shows `rC00`**. A
    short press only shows the function name, `rEc`, and the data is ignored.
 
 `uc4 send` prints these steps and waits for enter. `--yes` skips the

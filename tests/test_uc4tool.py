@@ -161,6 +161,12 @@ def test_cli(tmp_path, capsys):
     assert cli.main(["info", str(syx)]) == 0
     assert "setups:    4" in capsys.readouterr().out
     assert cli.main(["encode", str(yml), "--slot", "19", "-o", str(syx)]) == 1
+    # without a slot: the same setup, with the addresses of setup 1
+    assert cli.main(["encode", str(yml), "-o", str(syx)]) == 0
+    assert cli.main(["info", str(syx)]) == 0
+    assert "setups:    1" in capsys.readouterr().out
+    assert cli.main(["send", str(yml), "--port", "/dev/null"]) == 1
+    assert "not sent" in capsys.readouterr().err
     # sending needs a confirmation that the UC4 is in receive mode
     assert cli.main(["send", str(yml), "--slot", "4", "--port", "/dev/null"]) == 1
     assert "not sent" in capsys.readouterr().err

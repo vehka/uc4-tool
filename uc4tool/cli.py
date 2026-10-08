@@ -8,11 +8,15 @@ from . import __version__, midi, setup as setup_mod, setupfile, sysex
 RECEIVE_HELP = """\
 Put the UC4 in receive mode:
   1. hold shift and press edit twice (setup mode)
-  2. select setup %d with encoder 1 (SE%02d)
-  3. press encoder 7 and keep it down until the display shows rCOn
+  2. select the setup to overwrite with encoder 1 (SE01 to SE18)
+  3. press encoder 7 and keep it down until the display shows rC00
      (a short press only shows the function name, rEc, and the data is
      ignored)
-The UC4 shows SE%02d when the setup is stored."""
+The UC4 shows the number of the setup (SE05) when it is stored."""
+
+# the UC4 stores a dump of one setup in the setup selected on it, so the
+# addresses in the dump don't matter. dumps are made with those of this one
+DEFAULT_SLOT = 1
 
 SEND_HELP = """\
 Make the UC4 send:
@@ -40,19 +44,18 @@ def _is_sysex(data):
 
 
 def _load_dump_bytes(path, slot):
-    """The bytes to send for a .syx or setup file."""
+    """The bytes to send for a .syx or setup file, and the number of
+    setups in them. slot takes one setup out of a dump of all setups."""
     data = _read(path)
     if _is_sysex(data):
         dump = sysex.parse(data)  # checks it before it goes to the device
-        if slot is None:
-            return data, setup_mod.slots_in(dump)
-        setup, _ = setup_mod.from_dump(dump, None if len(
-            setup_mod.slots_in(dump)) == 1 else slot)
-        return sysex.build(setup_mod.to_dump(setup, slot)), [slot]
-    if slot is None:
-        raise ValueError("give the setup number to send it to with --slot")
-    setup = setupfile.parse(data.decode("utf-8"))
-    return sysex.build(setup_mod.to_dump(setup, slot)), [slot]
+        slots = setup_mod.slots_in(dump)
+        if slot is None or len(slots) == 1:
+            return data, len(slots)
+        setup, _ = setup_mod.from_dump(dump, slot)
+    else:
+        setup = setupfile.parse(data.decode("utf-8"))
+    return sysex.build(setup_mod.to_dump(setup, slot or DEFAULT_SLOT)), 1
 
 
 def cmd_info(args):
@@ -74,22 +77,22 @@ def cmd_decode(args):
 
 def cmd_encode(args):
     setup = setupfile.parse(_read(args.file).decode("utf-8"))
-    data = sysex.build(setup_mod.to_dump(setup, args.slot))
+    data = sysex.build(setup_mod.to_dump(setup, args.slot or DEFAULT_SLOT))
     if args.output in (None, "-") and sys.stdout.isatty():
         raise ValueError("give a file to write to with -o")
     _write(args.output, data)
 
 
 def cmd_send(args):
-    data, slots = _load_dump_bytes(args.file, args.slot)
+    data, setups = _load_dump_bytes(args.file, args.slot)
     port = args.port or midi.find_port()
-    if len(slots) == 1:
-        print(RECEIVE_HELP % (slots[0], slots[0], slots[0]), file=sys.stderr)
-        print("This overwrites setup %d." % slots[0], file=sys.stderr)
+    if setups == 1:
+        print(RECEIVE_HELP, file=sys.stderr)
+        print("This overwrites the setup selected on the UC4.", file=sys.stderr)
     else:
-        print("This overwrites ALL %d setups of the UC4." % len(slots), file=sys.stderr)
+        print("This overwrites ALL %d setups of the UC4." % setups, file=sys.stderr)
         print("Put the UC4 in receive mode (setup mode, hold encoder 7 "
-              "until the display shows rCOn).", file=sys.stderr)
+              "until the display shows rC00).", file=sys.stderr)
     if not args.yes:
         if not sys.stdin.isatty():
             raise ValueError("not sent: confirm with --yes when the UC4 is "
@@ -131,16 +134,18 @@ def main(argv=None):
 
     p = sub.add_parser("encode", help="turn a setup file into a .syx dump")
     p.add_argument("file")
-    p.add_argument("--slot", type=int, required=True,
-                   help="setup number (1-18) the dump is made for")
+    p.add_argument("--slot", type=int,
+                   help="setup number (1-18) whose addresses the dump gets. "
+                        "the UC4 doesn't go by them: it stores the dump in "
+                        "the setup selected on it")
     p.add_argument("-o", "--output", help="file to write")
     p.set_defaults(func=cmd_encode)
 
     p = sub.add_parser("send", help="send a setup file or .syx dump to the UC4")
     p.add_argument("file")
     p.add_argument("--slot", type=int,
-                   help="setup number (1-18) to overwrite. needed for a setup "
-                        "file; moves a one-setup dump to another setup")
+                   help="which setup to send from a dump of all setups. "
+                        "it goes to the setup selected on the UC4")
     p.add_argument("--port", help="raw MIDI device (default: the first UC4)")
     p.add_argument("--yes", action="store_true",
                    help="the UC4 is in receive mode: send without asking")

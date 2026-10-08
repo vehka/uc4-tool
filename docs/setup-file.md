@@ -1,8 +1,8 @@
 # Setup files
 
 A setup file describes one UC4 setup in YAML: what every control sends. The
-tool turns it into a sysex dump for any of the 18 setup slots
-(`uc4 encode`, `uc4 send`), and turns a dump into a setup file
+tool turns it into a sysex dump (`uc4 encode`, `uc4 send`), which the UC4
+stores in the setup selected on it, and turns a dump into a setup file
 (`uc4 decode`).
 
 A setup has 8 encoder groups and 8 fader groups, selected separately on the

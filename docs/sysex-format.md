@@ -69,10 +69,13 @@ F7
 
 The addresses in the blocks are addresses in the UC4's setup memory. A dump
 of all setups is that memory from `0x1480` to `0x7FFF` in 430 blocks of 64
-bytes. A dump of one setup holds only the 22 blocks of that setup, **at the
-addresses of the setup it was made from**: a dump of setup 2 overwrites
-setup 2. To put a setup in another slot, its blocks have to be given the
-addresses of that slot.
+bytes. A dump of one setup holds only the 22 blocks of that setup, at the
+addresses of the setup it was made from.
+
+The UC4 doesn't go by these addresses when it takes a dump of one setup: it
+stores the dump in **the setup that is selected on it** (encoder 1 in setup
+mode). A dump with the addresses of setup 5, sent while setup 4 was selected,
+was stored in setup 4.
 
 `s` is the setup number, 1 to 18.
 
@@ -191,16 +194,17 @@ U, `X` like an H, and `Z` like a 2. Codes above `0x26` weren't tried.
 
 The UC4 takes a dump only in receive mode: in setup mode (hold shift, press
 edit twice), press encoder 7 and **keep it down** while a dash runs across the
-display, until the display shows `rCOn`. A short press only shows the function
+display, until the display shows `rC00`. A short press only shows the function
 name, `rEc`, and incoming data is ignored. The dot at the bottom right of the
 display flashes for incoming MIDI in either case, so it tells nothing.
 
-When a one-setup dump has been stored the display shows the setup number
-(`SE15`). A dump that isn't taken leaves the display as it was.
+When a one-setup dump has been stored the display shows the number of the
+setup it was stored in, the selected one (`SE15`). A dump that isn't taken
+leaves the display as it was.
 
 Sent over USB in chunks of 16 bytes every 10 ms (1600 bytes a second, half
 the speed of a MIDI cable), dumps were stored every time the display showed
-`rCOn`. Faster wasn't tried with the device known to be in receive mode.
+`rC00`. Faster wasn't tried with the device known to be in receive mode.
 
 ## Not known
 
@@ -213,5 +217,6 @@ the speed of a MIDI cable), dumps were stored every time the display showed
   of one setup.
 - Whether a dump of all setups can be sent back in the same way. Only
   one-setup dumps were sent.
+- What the `00` of `rC00` stands for, and whether it changes.
 - The acceleration codes 1 and 2, the display nibble of push buttons and
   character codes above `0x26`, as noted above.
