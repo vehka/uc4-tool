@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "uc4-tool"
+version = "0.1.0"
+description = "Read, write and send setups of the Faderfox UC4 MIDI controller"
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = ["PyYAML"]
+
+[project.scripts]
+uc4 = "uc4tool.cli:main"
+
+[tool.setuptools]
+packages = ["uc4tool"]

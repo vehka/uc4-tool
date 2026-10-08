@@ -1,0 +1,103 @@
+# teenage engineering OP-1 field
+# from the MIDI reference of the OP-1 field guide (v1.7.0):
+# https://teenage.engineering/guides/op-1#midi-reference
+#
+# The OP-1 field takes most controllers on any channel. The mixer
+# controllers (7, 9, 10) go to tracks 1-4 by channel 1-4, and the sound
+# slot select (102) to slots 1-8 by channel 1-8.
+#
+# Not here: octave (controller 79, below 64 = down, from 64 = up). A
+# button sends a value on press and another on release, and both would
+# count as an octave step.
+
+uc4: 1
+name: OP-1 field
+firmware: "2.03"
+channel: 1
+
+defaults:
+  enc: {type: cc, mode: acc3, display: std}
+  fader: {type: cc, mode: jump, display: std}
+  button: {type: cc, mode: momentary, led: std}
+
+encoder_groups:
+  - name: "SynT"   # the sound: 4 synth params, then the envelope
+    # in drum mode: active key pitch, loop in, loop out, play mode,
+    #               envelope attack, gain, release, smooth
+    enc: [46, 47, 48, 49,    # synth param 1-4
+          50, 51, 52, 53]    # envelope attack, decay, sustain, release
+
+  - name: "FLFO"   # patch effect and LFO
+    enc: [54, 55, 56, 57,    # patch FX param 1-4
+          58, 59, 60, 61]    # patch LFO param 1-4
+
+  - name: "OUT "   # master effect and compressor
+    enc: [70, 71, 72, 73,    # master FX param 1-4
+          74, 75, 76, 77]    # master compressor param 1-4
+
+  - name: "TrAC"   # mixer: volume and pan of tracks 1-4
+    enc:
+      - {cc: 7, channel: 1}
+      - {cc: 7, channel: 2}
+      - {cc: 7, channel: 3}
+      - {cc: 7, channel: 4}
+      - {cc: 10, channel: 1, display: bipolar}
+      - {cc: 10, channel: 2, display: bipolar}
+      - {cc: 10, channel: 3, display: bipolar}
+      - {cc: 10, channel: 4, display: bipolar}
+
+  - name: "GLOb"
+    enc: [80,                # tempo (0-5: 40-50, 6-120: 52-166, 121-127: 168-180 bpm)
+          81,                # metronome level
+          78,                # tape record level
+          90, 91, 92]        # master EQ low, mid, high
+
+# the faders are the same in every group, so that changing the button
+# group doesn't change what they do
+fader_groups:
+  - fader: &faders
+      - {cc: 7, channel: 1}  # track 1-4 volume
+      - {cc: 7, channel: 2}
+      - {cc: 7, channel: 3}
+      - {cc: 7, channel: 4}
+      - 90                   # master EQ low
+      - 91                   # master EQ mid
+      - 92                   # master EQ high
+      - 78                   # tape record level
+    fader9: &fader9 81       # metronome level
+    # tape transport
+    button: [105,            # play
+             104,            # stop
+             82, 83,         # previous bar, next bar
+             84, 85,         # jump to start, jump to end
+             {cc: 88},       # toggle loop
+             {cc: 93, mode: toggle}]   # mode: off = synth, on = drum
+
+  - fader: *faders
+    fader9: *fader9
+    button:
+      - {cc: 9, channel: 1, mode: toggle}   # mute track 1-4
+      - {cc: 9, channel: 2, mode: toggle}
+      - {cc: 9, channel: 3, mode: toggle}
+      - {cc: 9, channel: 4, mode: toggle}
+      - 86                   # set loop in
+      - 87                   # set loop out
+      - 62                   # randomize the active patch
+
+  - fader: *faders
+    fader9: *fader9
+    button:                  # select sound slot 1-8
+      - {cc: 102, channel: 1}
+      - {cc: 102, channel: 2}
+      - {cc: 102, channel: 3}
+      - {cc: 102, channel: 4}
+      - {cc: 102, channel: 5}
+      - {cc: 102, channel: 6}
+      - {cc: 102, channel: 7}
+      - {cc: 102, channel: 8}
+
+  - {fader: *faders, fader9: *fader9}
+  - {fader: *faders, fader9: *fader9}
+  - {fader: *faders, fader9: *fader9}
+  - {fader: *faders, fader9: *fader9}
+  - {fader: *faders, fader9: *fader9}
